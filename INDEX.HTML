@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dimensión Uno - Conocimiento para la Enseñanza Efectiva</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f4f8;
+    color: #1a1a2e;
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, #1a1a6e 0%, #2563eb 60%, #0ea5e9 100%);
+    color: #fff;
+    text-align: center;
+    padding: 36px 20px 28px;
+    box-shadow: 0 4px 16px rgba(30,50,120,.3);
+  }
+  header h1 {
+    font-size: 1.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  header p { font-size: .95rem; opacity: .85; }
+
+  /* SCOREBOARD */
+  #scoreboard {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px 20px;
+    background: #fff;
+    border-bottom: 2px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  .score-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 8px 20px;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid #e2e8f0;
+  }
+  .score-box.correct { border-color: #22c55e; color: #15803d; background: #f0fdf4; }
+  .score-box.wrong   { border-color: #ef4444; color: #b91c1c; background: #fef2f2; }
+  .score-box.total   { border-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
+  .score-icon { font-size: 1.2rem; }
+
+  /* CONTAINER */
+  .container {
+    max-width: 860px;
+    margin: 30px auto;
+    padding: 0 16px 60px;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 26px 28px 20px;
+    margin-bottom: 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    border-left: 5px solid #3b82f6;
+    transition: box-shadow .2s;
+  }
+  .question-card:hover { box-shadow: 0 4px 20px rgba(59,130,246,.15); }
+  .question-num {
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #3b82f6;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .question-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 16px;
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 11px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    cursor: pointer;
+    text-align: left;
+    font-size: .95rem;
+    color: #334155;
+    transition: border-color .18s, background .18s, transform .1s;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    transform: translateX(3px);
+  }
+  .option-btn .opt-label {
+    font-weight: 700;
+    color: #3b82f6;
+    min-width: 22px;
+  }
+  .option-btn.correct-ans {
+    border-color: #22c55e;
+    background: #f0fdf4;
+    color: #15803d;
+  }
+  .option-btn.correct-ans .opt-label { color: #15803d; }
+  .option-btn.wrong-ans {
+    border-color: #ef4444;
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+  .option-btn.wrong-ans .opt-label { color: #b91c1c; }
+  .option-btn:disabled { cursor: default; transform: none; }
+
+  /* FEEDBACK */
+  .feedback-box {
+    display: none;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 4px;
+    font-size: .92rem;
+    line-height: 1.55;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.fb-correct {
+    background: #f0fdf4;
+    border: 1.5px solid #86efac;
+    color: #14532d;
+  }
+  .feedback-box.fb-wrong {
+    background: #fef2f2;
+    border: 1.5px solid #fca5a5;
+    color: #7f1d1d;
+  }
+  .feedback-box strong { font-weight: 700; }
+  .feedback-icon { font-size: 1.1rem; margin-right: 4px; }
+
+  /* SUGERENCIA */
+  .sugerencia {
+    margin-top: 10px;
+    font-size: .84rem;
+    color: #475569;
+    background: #f1f5f9;
+    border-radius: 7px;
+    padding: 9px 13px;
+    border-left: 3px solid #94a3b8;
+    display: none;
+  }
+  .sugerencia.show { display: block; }
+  .sugerencia strong { color: #334155; }
+
+  /* RESULT BAR */
+  .result-bar-wrap {
+    margin-top: 10px;
+    height: 5px;
+    border-radius: 3px;
+    background: #e2e8f0;
+    overflow: hidden;
+    display: none;
+  }
+  .result-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width .5s;
+  }
+  .result-bar-fill.correct { background: #22c55e; }
+  .result-bar-fill.wrong   { background: #ef4444; }
+
+  /* PROGRESS */
+  #progress-wrap {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: .9rem;
+    color: #64748b;
+  }
+  #progress-bar-outer {
+    background: #e2e8f0;
+    border-radius: 8px;
+    height: 8px;
+    margin: 8px 0 4px;
+    overflow: hidden;
+  }
+  #progress-bar-fill {
+    background: linear-gradient(90deg,#3b82f6,#06b6d4);
+    height: 100%;
+    border-radius: 8px;
+    transition: width .4s;
+    width: 0%;
+  }
+
+  /* FINAL MESSAGE */
+  #final-msg {
+    display: none;
+    text-align: center;
+    padding: 30px 20px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.1);
+    margin-top: 20px;
+  }
+  #final-msg h2 { font-size: 1.5rem; color: #1e293b; margin-bottom: 8px; }
+  #final-msg .big-score { font-size: 3rem; font-weight: 800; color: #2563eb; }
+  #final-msg p { color: #475569; margin-top: 6px; }
+  #reset-btn {
+    margin-top: 20px;
+    padding: 12px 32px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  #reset-btn:hover { background: #1d4ed8; }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.25rem; }
+    .question-card { padding: 18px 14px; }
+    #scoreboard { flex-wrap: wrap; gap: 8px; }
+    .score-box { padding: 7px 14px; font-size: .9rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Dimensión Uno</h1>
+  <p>Conocimiento para la Enseñanza Efectiva &mdash; 100 preguntas de evaluación docente</p>
+</header>
+
+<div id="scoreboard">
+  <div class="score-box correct"><span class="score-icon">✅</span> Correctas: <span id="sc-correct">0</span></div>
+  <div class="score-box wrong"><span class="score-icon">❌</span> Incorrectas: <span id="sc-wrong">0</span></div>
+  <div class="score-box total"><span class="score-icon">📋</span> Respondidas: <span id="sc-total">0</span> / 100</div>
+</div>
+
+<div class="container">
+  <div id="progress-wrap">
+    <div id="progress-bar-outer"><div id="progress-bar-fill"></div></div>
+    <span id="progress-label">0 de 100 respondidas</span>
+  </div>
+
+  <div id="quiz-area"></div>
+  <div id="final-msg">
+    <h2>🎓 ¡Cuestionario Completado!</h2>
+    <div class="big-score" id="final-score">0/100</div>
+    <p id="final-comment"></p>
+    <button id="reset-btn" onclick="resetQuiz()">🔄 Reiniciar cuestionario</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    num: 1,
+    text: "Un docente promueve una comunidad de práctica virtual con colegas internacionales para intercambiar metodologías innovadoras. Según el Marco Europeo para la Competencia Digital de los Educadores (DigCompEdu), ¿cuál es el propósito técnico de esta acción profesional?",
+    options: ["A) Gestionar infraestructura tecnológica escolar.", "B) Fortalecer desarrollo profesional colaborativo.", "C) Automatizar registros administrativos institucionales.", "D) Supervisar procesos evaluación estandarizados."],
+    correct: 1,
+    feedbackCorrect: "El Área 1 de DigCompEdu destaca el uso de canales digitales para la interacción profesional y el aprendizaje entre pares como motor de mejora continua.",
+    feedbackWrong: "Son tareas de soporte técnico, gestión burocrática o fiscalización que no definen la competencia de desarrollo profesional colaborativo.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 1: Compromiso Profesional."
+  },
+  {
+    num: 2,
+    text: "Al analizar los resultados de una evaluación formativa, un docente de primer grado identifica que la mayoría del grupo no logra segmentar sílabas. De acuerdo con los Estándares de Desempeño Profesional, ¿cuál es la respuesta pedagógica de alta calidad?",
+    options: ["A) Reorientar planificación según necesidades.", "B) Cumplir rigurosamente cronograma inicial.", "C) Priorizar contenidos teóricos adicionales.", "D) Estandarizar procesos instrucción grupales."],
+    correct: 0,
+    feedbackCorrect: "Los estándares exigen que el docente utilice los resultados del aprendizaje para ajustar su intervención y garantizar que todos alcancen los objetivos.",
+    feedbackWrong: "El cumplimiento rígido de cronogramas o la estandarización ignora el enfoque de atención a la diversidad y la mejora del aprendizaje.",
+    sugerencia: "Estándares de Desempeño Profesional - Dimensión: Gestión del Aprendizaje."
+  },
+  {
+    num: 3,
+    text: "En una experiencia de aprendizaje sobre el entorno, un niño de cinco años agrupa hojas secas considerando simultáneamente su forma lobulada y su textura áspera. Según el currículo de Preparatoria, ¿qué proceso cognitivo está consolidando?",
+    options: ["A) Resolver problemas cálculo aritmético.", "B) Clasificar objetos atributos múltiples.", "C) Identificar formas geométricas simples.", "D) Memorizar series numéricas básicas."],
+    correct: 1,
+    feedbackCorrect: "En Preparatoria, la clasificación avanzada implica que el estudiante logre agrupar elementos bajo dos o más criterios de forma simultánea.",
+    feedbackWrong: "El cálculo y la memoria no corresponden a esta etapa; la identificación simple es un nivel de complejidad inferior al observado en el caso.",
+    sugerencia: "Currículo Priorizado Preparatoria - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 4,
+    text: "Una docente de primer grado diseña una sesión donde los estudiantes identifican palabras que riman sin utilizar textos impresos ni grafemas. De acuerdo con la Guía para Docentes, ¿qué componente de la alfabetización inicial está priorizando?",
+    options: ["A) Sistematizar copia textos narrativos.", "B) Desarrollar conciencia fonológica oral.", "C) Evaluar caligrafía trazo cursivo.", "D) Decodificar fonemas grafemas aislados."],
+    correct: 1,
+    feedbackCorrect: "La alfabetización inicial efectiva se fundamenta en la capacidad oral de reconocer y manipular los sonidos del habla antes de la escritura.",
+    feedbackWrong: "La copia, la caligrafía o la decodificación mecánica de letras son enfoques tradicionales que no desarrollan la percepción fonológica necesaria.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 5,
+    text: "Un docente utiliza una plataforma educativa gratuita y, antes de registrar a sus estudiantes, revisa detalladamente las cláusulas de tratamiento de datos personales. Según el Catálogo de Perfiles Profesionales, ¿qué competencia está ejerciendo?",
+    options: ["A) Incrementar visibilidad institucional digital.", "B) Gestionar entornos virtuales seguros.", "C) Automatizar reportes calificaciones mensuales.", "D) Seleccionar software comercial popular."],
+    correct: 1,
+    feedbackCorrect: "El perfil docente exige un uso ético y seguro de las TIC, garantizando en todo momento la protección de la privacidad de los menores.",
+    feedbackWrong: "El interés comercial, la popularidad del software o la visibilidad en redes no justifican la vulneración de la seguridad digital estudiantil.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Competencias en TIC y Ética."
+  },
+  {
+    num: 6,
+    text: "Durante una discusión entre pares por el uso de materiales en el rincón de construcción, el docente facilita un proceso de mediación donde los niños proponen acuerdos. ¿Qué indicador de calidad educativa se está cumpliendo?",
+    options: ["A) Mantener orden mediante autoridad.", "B) Promover clima aula positivo.", "C) Sancionar conductas disruptivas severamente.", "D) Delegar resolución autoridades directivas."],
+    correct: 1,
+    feedbackCorrect: "Los estándares valoran la capacidad del docente para gestionar conflictos mediante el diálogo, fortaleciendo habilidades sociales y la convivencia armónica.",
+    feedbackWrong: "El autoritarismo, la sanción punitiva o la delegación externa son prácticas que no contribuyen a un clima de aprendizaje de calidad.",
+    sugerencia: "Estándares de Calidad Educativa - Gestión del Aprendizaje (Clima de Aula)."
+  },
+  {
+    num: 7,
+    text: "Un docente selecciona una herramienta digital que permite a los estudiantes elegir entre leer un texto, escuchar un audio o ver un video sobre el mismo tema científico. ¿Qué subcompetencia del área de Empoderamiento de los alumnos está aplicando?",
+    options: ["A) Monitorizar tiempo conexión estudiantes.", "B) Atender diversidad ritmos aprendizaje.", "C) Priorizar resultados técnicos grupales.", "D) Estandarizar procesos evaluación digitales."],
+    correct: 1,
+    feedbackCorrect: "El empoderamiento digital implica ofrecer múltiples medios de representación y acción para responder a los diferentes estilos y necesidades del grupo.",
+    feedbackWrong: "La estandarización o el monitoreo técnico no abordan la personalización pedagógica que busca este componente del marco europeo.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 5: Diferenciación y personalización."
+  },
+  {
+    num: 8,
+    text: "En la rutina diaria, la docente de Preparatoria permite que cada niño organice de forma independiente su material de trabajo y elija el rincón donde desea iniciar la jornada. ¿Qué eje de desarrollo busca fortalecer primordialmente?",
+    options: ["A) Seguir instrucciones profesor rígidamente.", "B) Potenciar niveles autonomía personal.", "C) Memorizar nombres objetos aula.", "D) Esperar ayuda docente siempre."],
+    correct: 1,
+    feedbackCorrect: "El ámbito de Identidad y Autonomía promueve que el niño tome decisiones progresivas sobre sus acciones, desarrollando seguridad e independencia.",
+    feedbackWrong: "Las prácticas de control rígido o dependencia inhiben el desarrollo integral y la iniciativa personal que demanda el currículo nacional.",
+    sugerencia: "Currículo Priorizado Preparatoria - Identidad y Autonomía."
+  },
+  {
+    num: 9,
+    text: "Al planificar la enseñanza de la lengua, un docente de primer grado organiza una visita a la oficina de correos para que los niños comprendan la utilidad de las cartas. Según el enfoque comunicativo, ¿qué objetivo persigue?",
+    options: ["A) Evaluar ortografía reglas gramaticales.", "B) Enriquecer contextos comunicativos reales.", "C) Sistematizar copia frases cortas.", "D) Priorizar decodificación mecánica grafemas."],
+    correct: 1,
+    feedbackCorrect: "El aprendizaje funcional de la lengua requiere que el estudiante interactúe con el lenguaje escrito en situaciones de uso real y significativo.",
+    feedbackWrong: "La corrección ortográfica temprana, la copia o la decodificación aislada se alejan de la construcción de sentidos del enfoque comunicativo.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 10,
+    text: "Durante una salida al huerto escolar, el docente guía a los estudiantes para que formulen hipótesis sobre por qué algunas plantas crecen más que otras. Según el currículo de Preparatoria, ¿qué capacidad está impulsando?",
+    options: ["A) Memorizar términos científicos complejos.", "B) Fomentar indagación científica guiada.", "C) Priorizar recolección muestras biológicas.", "D) Evaluar conocimientos teóricos botánica."],
+    correct: 1,
+    feedbackCorrect: "El descubrimiento del medio natural busca que el niño utilice sus sentidos y el pensamiento crítico para explorar y comprender su entorno.",
+    feedbackWrong: "El academicismo basado en memoria o teoría no corresponde al nivel de desarrollo de Preparatoria, que prioriza la exploración vivencial.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural."
+  },
+  {
+    num: 11,
+    text: "Un docente de primer grado selecciona una herramienta digital para que sus estudiantes graben audios describiendo objetos del entorno escolar. Según el Marco Europeo para la Competencia Digital de los Educadores (DigCompEdu), ¿qué capacidad técnica está fortaleciendo en el alumnado?",
+    options: ["A) Evaluar contenidos técnicos complejos.", "B) Fomentar comunicación colaboración digital.", "C) Gestionar identidades virtuales seguras.", "D) Monitorear tiempo conexión estudiantes."],
+    correct: 1,
+    feedbackCorrect: "El área 6 del marco digital destaca la importancia de facilitar experiencias donde los estudiantes utilicen tecnologías para interactuar y expresarse de forma creativa.",
+    feedbackWrong: "No se alinean con el objetivo pedagógico de la actividad, que se centra en el uso funcional y comunicativo de la tecnología por parte del niño.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 6: Desarrollo de la competencia digital de los estudiantes."
+  },
+  {
+    num: 12,
+    text: "En una experiencia de aprendizaje de Preparatoria, el docente entrega semillas de diversos tamaños y solicita a los estudiantes que las agrupen considerando simultáneamente su color y su textura. ¿Qué destreza del pensamiento lógico está consolidando?",
+    options: ["A) Resolver problemas cálculo matemático.", "B) Memorizar nombres científicos especies.", "C) Clasificar objetos criterios múltiples.", "D) Identificar formas geométricas simples."],
+    correct: 2,
+    feedbackCorrect: "El currículo priorizado establece que el niño debe avanzar hacia la clasificación de elementos basándose en dos o más atributos de forma simultánea.",
+    feedbackWrong: "El cálculo y la memoria no corresponden a esta etapa de desarrollo; la identificación de formas es una habilidad de geometría, no de relaciones lógicas.",
+    sugerencia: "Currículo Priorizado Preparatoria - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 13,
+    text: "Un docente identifica que un estudiante de su grupo presenta señales de una posible vulneración de derechos en su entorno familiar. De acuerdo con el Catálogo de Perfiles Profesionales, ¿cuál es el proceder técnico obligatorio?",
+    options: ["A) Delegar intervención especialistas externos.", "B) Activar rutas protección integral.", "C) Ignorar situación detectada aula.", "D) Priorizar intereses institucionales personales."],
+    correct: 1,
+    feedbackCorrect: "El perfil profesional exige que el docente actúe como garante de derechos, activando inmediatamente los protocolos y rutas de protección vigentes.",
+    feedbackWrong: "Representan omisiones graves a la responsabilidad ética y legal del docente, cuya prioridad debe ser el interés superior del niño.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Competencias Éticas y Legales."
+  },
+  {
+    num: 14,
+    text: "Durante la jornada de alfabetización inicial, el docente utiliza etiquetas con nombres de objetos reales para que los niños de primer grado los identifiquen en el aula. Según la Guía para Docentes, ¿qué enfoque didáctico está aplicando?",
+    options: ["A) Decodificar fonemas grafemas aislados.", "B) Promover lectura emergente funcional.", "C) Sistematizar copia textos extensos.", "D) Evaluar caligrafía trazo perfecto."],
+    correct: 1,
+    feedbackCorrect: "El enfoque comunicativo busca que el niño interactúe con el lenguaje escrito en contextos reales y significativos, comprendiendo su utilidad social.",
+    feedbackWrong: "Se enfocan en aspectos mecánicos o gráficos que no corresponden a la construcción de sentidos que propone la reforma curricular actual.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 15,
+    text: "Un profesor utiliza una plataforma de gestión de aprendizaje para proporcionar comentarios específicos y sugerencias de mejora a cada estudiante tras un proyecto grupal. Según DigCompEdu, ¿qué área competencial ejerce?",
+    options: ["A) Brindar retroalimentación oportuna digital.", "B) Automatizar reportes calificaciones mensuales.", "C) Seleccionar recursos comerciales populares.", "D) Sustituir mediación docente directa."],
+    correct: 0,
+    feedbackCorrect: "El área de evaluación (Área 4) destaca el uso de tecnologías para ofrecer comentarios rápidos y personalizados que guíen el proceso de aprendizaje.",
+    feedbackWrong: "No representan una competencia de análisis pedagógico, sino gestiones burocráticas, comerciales o una visión errónea del rol tecnológico.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 4: Evaluación."
+  },
+  {
+    num: 16,
+    text: "Al finalizar una actividad de expresión corporal, el docente de Preparatoria guía una plenaria donde los niños deben explicar cómo se sintieron al representar diferentes emociones. ¿Qué eje de desarrollo está priorizando?",
+    options: ["A) Fomentar la inteligencia socioemocional.", "B) Evaluar coordinación motriz gruesa.", "C) Dictar conceptos teóricos psicología.", "D) Imponer normas comportamiento rígidamente."],
+    correct: 0,
+    feedbackCorrect: "El currículo priorizado enfatiza que el desarrollo de la identidad y la convivencia debe basarse en el reconocimiento y expresión de las propias emociones.",
+    feedbackWrong: "Aunque se usó el movimiento, el objetivo de la plenaria es la autorreflexión emocional, no la técnica física o el control disciplinario.",
+    sugerencia: "Currículo Priorizado Preparatoria - Ámbito Identidad y Autonomía."
+  },
+  {
+    num: 17,
+    text: "Un docente revisa los indicadores de los Estándares de Calidad Educativa para autoevaluar su gestión pedagógica. ¿Cuál de estos indicadores caracteriza un desempeño profesional de alta calidad?",
+    options: ["A) Seguir solamente libro texto.", "B) Completar todos registros diarios.", "C) Retroalimentar oportunamente el desempeño.", "D) Mantener silencio absoluto clases."],
+    correct: 2,
+    feedbackCorrect: "La retroalimentación constante es el indicador fundamental de que la evaluación se utiliza con fines formativos para mejorar el aprendizaje.",
+    feedbackWrong: "Son tareas administrativas o enfoques tradicionales de control que no garantizan necesariamente una mejora en la calidad del aprendizaje.",
+    sugerencia: "Estándares de Desempeño Profesional - Gestión del Aprendizaje."
+  },
+  {
+    num: 18,
+    text: "La docente de primer grado organiza el \"rincón de la tienda\" y entrega monedas de papel a los estudiantes para realizar intercambios sencillos de productos. ¿Cuál es el propósito didáctico prioritario?",
+    options: ["A) Memorizar tablas sumar restar.", "B) Contextualizar nociones matemáticas básicas.", "C) Priorizar ejercicios cálculo mental.", "D) Evaluar rapidez resolución problemas."],
+    correct: 1,
+    feedbackCorrect: "Las relaciones lógico-matemáticas en este nivel deben desarrollarse a través de situaciones lúdicas que permitan comprender el uso del número en la vida diaria.",
+    feedbackWrong: "El enfoque de Preparatoria rechaza la memorización aislada y la presión por la rapidez en favor de la comprensión concreta y significativa.",
+    sugerencia: "Currículo General - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 19,
+    text: "Un docente decide utilizar un recurso educativo abierto (REA) para su clase de ciencias y, antes de compartirlo, verifica que la licencia permita su adaptación al contexto local. ¿Qué competencia demuestra?",
+    options: ["A) Comprar software edición costoso.", "B) Gestionar contenidos digitales éticamente.", "C) Prohibir acceso internet externo.", "D) Omitir citación fuentes originales."],
+    correct: 1,
+    feedbackCorrect: "La gestión de contenidos digitales incluye la capacidad de buscar, seleccionar y utilizar recursos respetando la propiedad intelectual y los derechos de autor.",
+    feedbackWrong: "No se trata de una transacción económica ni de una restricción, sino del ejercicio de una ética profesional en entornos virtuales.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 2: Contenidos Digitales."
+  },
+  {
+    num: 20,
+    text: "Durante un proyecto sobre \"Mi Barrio\", el docente invita a los niños a observar y describir los diferentes oficios de las personas que trabajan cerca de la escuela. ¿Qué capacidad busca fortalecer?",
+    options: ["A) Valorar el entorno sociocultural.", "B) Memorizar nombres autoridades locales.", "C) Priorizar recolección datos estadísticos.", "D) Evaluar conocimientos teóricos geografía."],
+    correct: 0,
+    feedbackCorrect: "El ámbito de descubrimiento del medio natural y cultural busca que el niño se reconozca como parte de una comunidad, valorando sus actores sociales.",
+    feedbackWrong: "El enfoque no es la memorización burocrática ni el análisis estadístico o teórico, sino la vinculación vivencial con su medio.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural y Cultural."
+  },
+  {
+    num: 21,
+    text: "Un docente implementa un tablero digital colaborativo donde los estudiantes de primer grado comparten imágenes de los seres vivos de su entorno para categorizarlos grupalmente. Según el Marco Europeo para la Competencia Digital de los Educadores (DigCompEdu), ¿qué estrategia pedagógica digital está priorizando?",
+    options: ["A) Implementar estrategias aprendizaje cooperativo.", "B) Monitorear tiempo conexión alumnos.", "C) Gestionar infraestructura red institucional.", "D) Seleccionar software comercial exclusivo."],
+    correct: 0,
+    feedbackCorrect: "El Área 3 de DigCompEdu destaca el uso de tecnologías para fomentar el aprendizaje colaborativo, permitiendo que los estudiantes co-creen conocimiento de forma activa.",
+    feedbackWrong: "El monitoreo de tiempo, la gestión de red o la selección de software comercial no describen la intención pedagógica de colaboración.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 3: Enseñanza y Aprendizaje."
+  },
+  {
+    num: 22,
+    text: "Al diseñar la Planificación Curricular Anual (PCA), un docente de una zona fronteriza ajusta los contenidos de Ciencias Sociales para integrar las festividades y tradiciones binacionales de la comunidad. De acuerdo con los Estándares de Desempeño Profesional, ¿qué práctica de gestión curricular está ejerciendo?",
+    options: ["A) Estandarizar procesos instrucción curriculares.", "B) Contextualizar diseño curricular áulico.", "C) Priorizar cumplimiento cronogramas administrativos.", "D) Omitir objetivos aprendizaje oficiales."],
+    correct: 1,
+    feedbackCorrect: "Un estándar de calidad es la capacidad del docente para adaptar el currículo nacional a la realidad social y cultural de sus estudiantes, garantizando la pertinencia del aprendizaje.",
+    feedbackWrong: "La estandarización, el enfoque burocrático o la omisión de objetivos contradicen el principio de flexibilidad y contextualización que exigen los estándares.",
+    sugerencia: "Estándares de Desempeño Profesional - Dimensión: Gestión del Aprendizaje."
+  },
+  {
+    num: 23,
+    text: "Durante una actividad de relaciones lógico-matemáticas en Preparatoria, la docente presenta etiquetas de productos reales y pide a los niños identificar dónde se encuentra el precio. ¿Qué capacidad técnica busca consolidar en este subnivel?",
+    options: ["A) Resolver operaciones cálculo aritmético.", "B) Memorizar series numéricas abstractas.", "C) Identificar funcionalidad numeral cotidiana.", "D) Dibujar números colores primarios."],
+    correct: 2,
+    feedbackCorrect: "El currículo de Preparatoria busca que el niño reconozca el uso de los números como elementos comunicativos y funcionales en situaciones reales de su entorno.",
+    feedbackWrong: "El cálculo complejo y la memoria abstracta no corresponden a esta etapa; el dibujo artístico es una habilidad motriz, no una comprensión de la función numérica.",
+    sugerencia: "Currículo Priorizado Preparatoria - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 24,
+    text: "Un docente de primer grado utiliza portafolios digitales para documentar las etapas de escritura de sus alumnos desde el garabateo hasta la alfabetización convencional. Según el marco DigCompEdu, ¿cuál es el propósito de esta gestión evaluativa?",
+    options: ["A) Automatizar reportes calificaciones parciales.", "B) Evaluar procesos aprendizaje longitudinales.", "C) Clasificar niveles inteligencia grupal.", "D) Sustituir mediación docente directa."],
+    correct: 1,
+    feedbackCorrect: "El Área 4 (Evaluación) incentiva el uso de evidencias digitales para monitorear el progreso del estudiante a lo largo del tiempo, facilitando una evaluación formativa y procesal.",
+    feedbackWrong: "No se trata de un trámite administrativo ni de una clasificación intelectual; el portafolio es una herramienta de seguimiento pedagógico del aprendizaje.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 4: Evaluación."
+  },
+  {
+    num: 25,
+    text: "En la hora de Lengua y Literatura, el docente emplea \"libros mudos\" (solo imágenes) para que los niños de primer grado narren la historia siguiendo la secuencia visual. Según la Guía para Docentes, ¿qué habilidad comunicativa está estimulando?",
+    options: ["A) Decodificar fonemas grafemas aislados.", "B) Sistematizar copia textos narrativos.", "C) Evaluar caligrafía trazo perfecto.", "D) Desarrollar habilidades lectura emergente."],
+    correct: 3,
+    feedbackCorrect: "El enfoque comunicativo valora la lectura de imágenes y la construcción de significados a partir de diversos códigos antes del dominio del código alfabético escrito.",
+    feedbackWrong: "El enfoque mecánico (decodificación, copia, caligrafía) se aleja de la construcción de sentidos y la interpretación que propone la alfabetización inicial funcional.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 26,
+    text: "Un docente es abordado por un miembro de la comunidad que solicita detalles específicos sobre la situación económica de una familia del grado. De acuerdo con el Catálogo de Perfiles Profesionales, ¿cuál es la conducta ética requerida?",
+    options: ["A) Compartir datos familiares públicamente.", "B) Mantener confidencialidad ética profesional.", "C) Delegar responsabilidad compañeros grado.", "D) Priorizar intereses institucionales particulares."],
+    correct: 1,
+    feedbackCorrect: "El perfil profesional exige actuar con integridad, protegiendo la privacidad y la información sensible de los estudiantes y sus familias bajo el principio de sigilo profesional.",
+    feedbackWrong: "La divulgación de datos sensibles o la delegación de esta responsabilidad ética constituyen faltas graves a la normativa y responsabilidad del docente.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Competencias Éticas y Legales."
+  },
+  {
+    num: 27,
+    text: "En una salida al parque cercano, el docente guía a los estudiantes de Preparatoria para que diferencien entre las piedras y las hormigas que observan en el suelo. ¿Qué destreza del ámbito de descubrimiento natural está fortaleciendo?",
+    options: ["A) Memorizar clasificaciones biológicas teóricas.", "B) Extraer recursos fines experimentales.", "C) Discriminar elementos entorno natural.", "D) Ignorar ciclos biológicos ecosistema."],
+    correct: 2,
+    feedbackCorrect: "El descubrimiento del medio busca que el niño utilice sus sentidos para diferenciar entre elementos abióticos (materia inerte) y seres vivos de su entorno inmediato.",
+    feedbackWrong: "La memoria teórica no corresponde al nivel; la extracción sin propósito educativo o la ignorancia del entorno contradicen los objetivos de conciencia ambiental.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural y Cultural."
+  },
+  {
+    num: 28,
+    text: "Un docente de primer grado implementa una sesión donde los estudiantes intercambian sus trabajos de dibujo para comentarse mutuamente qué les gustó de la obra del otro. ¿Qué práctica de evaluación formativa está promoviendo?",
+    options: ["A) Sancionar errores compañeros grupalmente.", "B) Promover procesos coevaluación formativa.", "C) Delegar calificación docente exclusivamente.", "D) Evitar discusiones pedagógicas alumnos."],
+    correct: 1,
+    feedbackCorrect: "Los estándares de desempeño y el marco de evaluación valoran que los estudiantes participen activamente en la valoración del aprendizaje de sus pares para desarrollar juicio crítico.",
+    feedbackWrong: "La sanción grupal es punitiva; la exclusividad de la calificación docente o la evitación del diálogo limitan el carácter formativo de la evaluación.",
+    sugerencia: "Estándares de Desempeño Profesional - Gestión del Aprendizaje."
+  },
+  {
+    num: 29,
+    text: "Ante un desacuerdo sobre quién debe usar primero el columpio, el docente media para que los niños de Preparatoria propongan un turno de espera justo. ¿Qué componente del eje de desarrollo personal está trabajando?",
+    options: ["A) Imponer criterios autoridad docente.", "B) Establecer acuerdos convivencia armónica.", "C) Ignorar discrepancias entre pares.", "D) Sancionar conductas disruptivas severamente."],
+    correct: 1,
+    feedbackCorrect: "El ámbito de Convivencia busca que el niño desarrolle habilidades sociales de mediación y resolución pacífica de conflictos mediante el establecimiento de normas compartidas.",
+    feedbackWrong: "El autoritarismo, la negligencia o el castigo severo inhiben el desarrollo de habilidades sociales y la autonomía moral que demanda el currículo nacional.",
+    sugerencia: "Currículo Priorizado Preparatoria - Ámbito Convivencia."
+  },
+  {
+    num: 30,
+    text: "Un docente decide realizar un curso de posgrado sobre estrategias de inclusión para estudiantes con Necesidades Educativas Específicas (NEE). De acuerdo con el perfil profesional, ¿qué compromiso está demostrando?",
+    options: ["A) Evitar procesos capacitación continua.", "B) Actualizar competencias profesionales pedagógicas.", "C) Priorizar intereses económicos personales.", "D) Omitir normativas inclusivas institucionales."],
+    correct: 1,
+    feedbackCorrect: "El catálogo de perfiles destaca la responsabilidad del docente de mantenerse en constante actualización científica y pedagógica para responder a los desafíos del sistema educativo.",
+    feedbackWrong: "Son conductas que demuestran desinterés por la mejora profesional o que vulneran el derecho a la educación inclusiva y el marco legal vigente.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Desarrollo Profesional."
+  },
+  {
+    num: 31,
+    text: "Un docente implementa un portafolio digital donde los estudiantes de primer grado seleccionan sus mejores trabajos y graban un audio explicando por qué se sienten orgullosos de ellos. Según el marco DigCompEdu, ¿cuál es el propósito pedagógico de esta acción?",
+    options: ["A) Promover procesos metacognición digital.", "B) Sustituir evaluación docente tradicional.", "C) Automatizar reportes administrativos mensuales.", "D) Clasificar niveles inteligencia grupal."],
+    correct: 0,
+    feedbackCorrect: "El Área 4 (Evaluación) destaca el uso de tecnologías para que los estudiantes reflexionen sobre su propio aprendizaje y desarrollen capacidades de autoevaluación.",
+    feedbackWrong: "No se trata de un reemplazo del docente ni de un trámite burocrático; el fin es el desarrollo de la autonomía y conciencia del aprendizaje del alumno.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 4: Evaluación."
+  },
+  {
+    num: 32,
+    text: "Durante una actividad de rutina diaria en Preparatoria, el docente pide a los niños que anticipen qué actividad sigue después del almuerzo basándose en el panel de pictogramas del aula. ¿Qué destreza está fortaleciendo?",
+    options: ["A) Memorizar fechas históricas nacionales.", "B) Estructurar nociones temporales básicas.", "C) Contar días calendario escolar.", "D) Escribir meses año ordenadamente."],
+    correct: 1,
+    feedbackCorrect: "La orientación temporal en el subnivel de Preparatoria se construye mediante la secuencia de eventos cotidianos y el uso de apoyos visuales como pictogramas.",
+    feedbackWrong: "La memoria de fechas, el conteo de días o la escritura de meses son tareas de mayor abstracción que no definen la noción temporal inicial en este nivel.",
+    sugerencia: "Currículo Priorizado Preparatoria - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 33,
+    text: "Un docente identifica que una herramienta digital planificada para su clase no posee opciones de lectura por voz para un estudiante con discapacidad visual. Ante esto, adapta el recurso utilizando un software de accesibilidad. ¿Qué competencia demuestra según DigCompEdu?",
+    options: ["A) Comprar hardware edición costoso.", "B) Garantizar accesibilidad inclusión tecnológica.", "C) Prohibir acceso internet laboratorios.", "D) Omitir apoyos técnicos necesarios."],
+    correct: 1,
+    feedbackCorrect: "El área de empoderamiento exige que el docente identifique y elimine barreras digitales, asegurando que la tecnología sea inclusiva para todos los estudiantes.",
+    feedbackWrong: "No implica un gasto comercial ni una restricción; es una competencia pedagógica de inclusión y equidad educativa.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 5: Empoderamiento de los alumnos."
+  },
+  {
+    num: 34,
+    text: "En una sesión de alfabetización inicial, el docente organiza el juego de \"cadenas de palabras\", donde los niños de primer grado deben decir una palabra que comience con la última sílaba de la anterior. ¿Qué componente prioriza?",
+    options: ["A) Sistematizar copia grafemas aislados.", "B) Evaluar caligrafía trazo cursivo.", "C) Fortalecer conciencia fonológica oral.", "D) Decodificar textos científicos extensos."],
+    correct: 2,
+    feedbackCorrect: "La Guía Docente enfatiza que el desarrollo fonológico (manipulación de sonidos y sílabas de forma oral) es el pilar fundamental para el aprendizaje de la lectoescritura.",
+    feedbackWrong: "El enfoque mecánico, la caligrafía o el análisis de textos complejos no abordan la percepción auditiva necesaria para la alfabetización inicial funcional.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 35,
+    text: "Un docente utiliza una rúbrica de evaluación encontrada en un repositorio digital y la modifica para ajustarla a los criterios específicos de su proyecto sobre el medio ambiente. Según el marco DigCompEdu, ¿qué acción está realizando?",
+    options: ["A) Contextualizar instrumentos evaluación digital.", "B) Omitir autoría recursos originales.", "C) Sancionar errores gramaticales graves.", "D) Priorizar resultados técnicos grupales."],
+    correct: 0,
+    feedbackCorrect: "La competencia de evaluación digital incluye la capacidad de adaptar herramientas y criterios para que respondan fielmente a los objetivos de aprendizaje planteados.",
+    feedbackWrong: "La omisión de autoría es una falta ética; la sanción o el enfoque puramente técnico no definen la competencia de adaptación pedagógica.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 4: Evaluación."
+  },
+  {
+    num: 36,
+    text: "Durante un proyecto sobre la familia, un niño expresa sentirse triste; el docente valida su emoción y guía una reflexión grupal sobre la importancia de apoyarse mutuamente. ¿Qué ámbito curricular está promoviendo?",
+    options: ["A) Ignorar expresiones emocionales infantiles.", "B) Imponer normas comportamiento rígidamente.", "C) Desarrollar habilidades socioemocionales empáticas.", "D) Evaluar conocimientos teóricos sociología."],
+    correct: 2,
+    feedbackCorrect: "El currículo priorizado de Preparatoria destaca el desarrollo de la identidad y la convivencia a través del reconocimiento y la gestión afectiva de las emociones.",
+    feedbackWrong: "La negligencia emocional, el autoritarismo o el enfoque puramente teórico contradicen los objetivos de formación integral y bienestar del estudiante.",
+    sugerencia: "Currículo Priorizado Preparatoria - Ámbito Identidad y Autonomía."
+  },
+  {
+    num: 37,
+    text: "Un docente es consultado por un vecino sobre el diagnóstico médico de un estudiante que requiere apoyo específico en el aula. De acuerdo con el Catálogo de Perfiles Profesionales, ¿cuál es la respuesta correcta?",
+    options: ["A) Compartir información privada libremente.", "B) Mantener confidencialidad ética profesional.", "C) Delegar respuesta otros compañeros.", "D) Priorizar intereses vecinales particulares."],
+    correct: 1,
+    feedbackCorrect: "El perfil profesional exige al docente guardar sigilo sobre la información sensible de sus estudiantes, protegiendo su derecho a la intimidad y dignidad.",
+    feedbackWrong: "La divulgación de datos personales o la delegación de esta responsabilidad ética son faltas graves a la normativa y responsabilidad del magisterio.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Competencias Éticas y Legales."
+  },
+  {
+    num: 38,
+    text: "En una actividad de exploración en el patio, los estudiantes de Preparatoria deben clasificar imágenes en dos grupos: \"seres que respiran\" y \"seres que no respiran\". ¿Qué capacidad busca consolidar?",
+    options: ["A) Memorizar clasificaciones biológicas abstractas.", "B) Diferenciar elementos entorno natural.", "C) Extraer recursos fines comerciales.", "D) Ignorar ciclos vida ecosistemas."],
+    correct: 1,
+    feedbackCorrect: "El ámbito de descubrimiento busca que el niño diferencie seres vivos de materia inerte a través de la observación de sus características vitales básicas.",
+    feedbackWrong: "El academicismo basado en memoria o el enfoque económico no corresponden a la exploración vivencial que demanda el currículo en este subnivel.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural."
+  },
+  {
+    num: 39,
+    text: "Un docente propone que sus estudiantes utilicen un mapa digital compartido para ubicar y describir los lugares más importantes de su barrio. Según DigCompEdu, ¿qué estrategia está aplicando?",
+    options: ["A) Implementar aprendizaje colaborativo digital.", "B) Monitorear tiempo conexión alumnos.", "C) Instalar sistemas operativos institucionales.", "D) Borrar archivos compartidos docentes."],
+    correct: 0,
+    feedbackCorrect: "El Área 3 (Enseñanza y Aprendizaje) promueve el uso de tecnologías para que los estudiantes co-creen información y aprendan unos de otros en entornos virtuales.",
+    feedbackWrong: "Son tareas de control, soporte técnico o gestión de archivos que no reflejan la intención pedagógica de colaboración digital.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 3: Enseñanza y Aprendizaje."
+  },
+  {
+    num: 40,
+    text: "Al finalizar la unidad de \"Mi Comunidad\", los niños de primer grado crean una invitación para una feria escolar, integrando dibujos y textos cortos. ¿Qué enfoque de alfabetización aplica?",
+    options: ["A) Copiar listas vocabulario técnico.", "B) Memorizar abecedario completo hoy.", "C) Evaluar caligrafía letras aisladas.", "D) Producir textos sentido funcional."],
+    correct: 3,
+    feedbackCorrect: "El enfoque comunicativo de la Guía Docente prioriza que la producción escrita tenga un propósito comunicativo real y relevante para la vida del niño.",
+    feedbackWrong: "La copia, la memorización del alfabeto o la caligrafía aislada son enfoques tradicionales que no desarrollan la función social de la lengua.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 41,
+    text: "Un docente implementa una bitácora digital donde los estudiantes de primer grado graban audios reflexionando sobre qué actividades les resultaron más sencillas y por qué. Según el marco DigCompEdu, ¿qué proceso pedagógico está potenciando?",
+    options: ["A) Fortalecer procesos autoevaluación digital.", "B) Sustituir mediación docente directa.", "C) Automatizar reportes administrativos mensuales.", "D) Clasificar niveles inteligencia grupal."],
+    correct: 0,
+    feedbackCorrect: "El Área 4 (Evaluación) destaca el uso de tecnologías para que los estudiantes desarrollen capacidades metacognitivas y evalúen su propio progreso de forma crítica.",
+    feedbackWrong: "No se trata de un reemplazo del docente ni de un trámite burocrático; el fin es el desarrollo de la autonomía y conciencia del aprendizaje del alumno.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 4: Evaluación."
+  },
+  {
+    num: 42,
+    text: "Durante la rutina de aseo en Preparatoria, un niño intenta abotonarse la chaqueta sin éxito; el docente observa pacientemente y ofrece ánimos sin realizar la acción por él. ¿Qué objetivo curricular está priorizando?",
+    options: ["A) Fomentar la autonomía personal.", "B) Imponer ritmos trabajo rígidos.", "C) Realizar tareas por estudiante.", "D) Castigar errores cometidos alumnos."],
+    correct: 0,
+    feedbackCorrect: "El ámbito de Identidad y Autonomía busca fortalecer la seguridad y la capacidad del niño para valerse por sí mismo en situaciones cotidianas de su vida.",
+    feedbackWrong: "Las prácticas de control rígido, la dependencia o el castigo inhiben el desarrollo integral y la iniciativa personal que demanda el currículo nacional.",
+    sugerencia: "Currículo Priorizado Preparatoria - Ámbito Identidad y Autonomía."
+  },
+  {
+    num: 43,
+    text: "Al notar que un pequeño grupo de estudiantes concluyó la actividad de lógica mucho antes que el resto, el docente les propone un desafío adicional con mayor grado de complejidad. Según los Estándares de Desempeño, ¿qué práctica ejerce?",
+    options: ["A) Atender la diversidad áulica.", "B) Ignorar ritmos aprendizaje individuales.", "C) Sancionar alumnos por rapidez.", "D) Reportar faltas autoridades distritales."],
+    correct: 0,
+    feedbackCorrect: "Un indicador de calidad es la capacidad del docente para ajustar la enseñanza y ofrecer retos diferenciados según los ritmos de aprendizaje detectados.",
+    feedbackWrong: "La falta de diferenciación, el castigo al desempeño o la burocratización son contrarios a una gestión del aprendizaje de alta calidad.",
+    sugerencia: "Estándares de Desempeño Profesional - Dimensión: Gestión del Aprendizaje."
+  },
+  {
+    num: 44,
+    text: "Para facilitar la participación de un estudiante con baja visión en un proyecto de investigación digital, el docente utiliza un software que convierte el texto en voz. Según el marco DigCompEdu, ¿qué área competencial aplica?",
+    options: ["A) Garantizar inclusión accesibilidad tecnológica.", "B) Prohibir acceso internet laboratorios.", "C) Comprar hardware edición costoso.", "D) Omitir apoyos técnicos necesarios."],
+    correct: 0,
+    feedbackCorrect: "El área de empoderamiento exige que el docente identifique y elimine barreras digitales, asegurando que la tecnología sea inclusiva para todos los estudiantes.",
+    feedbackWrong: "No implica una restricción o un gasto comercial; es una competencia pedagógica de inclusión y equidad educativa.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 5: Empoderamiento de los alumnos."
+  },
+  {
+    num: 45,
+    text: "En una sesión de alfabetización inicial, el docente organiza el juego de \"cadenas de palabras\", donde los niños de primer grado deben decir una palabra que comience con el sonido final de la anterior. ¿Qué componente prioriza?",
+    options: ["A) Desarrollar conciencia fonológica oral.", "B) Sistematizar copia grafemas aislados.", "C) Evaluar caligrafía trazo cursivo.", "D) Decodificar textos científicos extensos."],
+    correct: 0,
+    feedbackCorrect: "La Guía Docente enfatiza que el desarrollo fonológico (manipulación de sonidos de forma oral) es el pilar fundamental para el éxito en la lectoescritura.",
+    feedbackWrong: "El enfoque mecánico, la caligrafía o el análisis de textos complejos no abordan la percepción auditiva necesaria para la alfabetización inicial.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 46,
+    text: "Un docente es abordado en un espacio público por un vecino que solicita detalles sobre la composición familiar de un estudiante del grado. De acuerdo con el Catálogo de Perfiles Profesionales, ¿cuál es la conducta ética requerida?",
+    options: ["A) Mantener confidencialidad ética profesional.", "B) Compartir datos familiares públicamente.", "C) Delegar respuesta otros compañeros.", "D) Priorizar intereses institucionales particulares."],
+    correct: 0,
+    feedbackCorrect: "El perfil profesional exige al docente guardar sigilo sobre la información sensible de sus estudiantes y sus familias, protegiendo su derecho a la intimidad.",
+    feedbackWrong: "La divulgación de datos personales o la delegación de esta responsabilidad ética son faltas graves a la normativa y responsabilidad del magisterio.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Competencias Éticas y Legales."
+  },
+  {
+    num: 47,
+    text: "Durante una caminata de observación, los estudiantes de Preparatoria deben clasificar elementos en dos cestos: \"seres que crecen\" y \"objetos que no crecen\". ¿Qué capacidad busca consolidar según el currículo?",
+    options: ["A) Discriminar elementos entorno natural.", "B) Memorizar clasificaciones biológicas abstractas.", "C) Extraer recursos fines comerciales.", "D) Ignorar ciclos vida ecosistemas."],
+    correct: 0,
+    feedbackCorrect: "El ámbito de descubrimiento busca que el niño diferencie seres vivos de materia inerte a través de la observación de características vitales básicas.",
+    feedbackWrong: "El academicismo basado en memoria o el enfoque económico no corresponden a la exploración vivencial que demanda el currículo en este subnivel.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural."
+  },
+  {
+    num: 48,
+    text: "Un docente utiliza una rúbrica de evaluación encontrada en un repositorio digital y ajusta los criterios para que coincidan con la realidad sociocultural de sus alumnos. Según los estándares de calidad, ¿qué práctica realiza?",
+    options: ["A) Contextualizar instrumentos evaluación digital.", "B) Omitir autoría recursos originales.", "C) Sancionar errores gramaticales graves.", "D) Priorizar resultados técnicos grupales."],
+    correct: 0,
+    feedbackCorrect: "Un desempeño profesional de calidad implica adaptar las herramientas y criterios evaluativos para que respondan fielmente al contexto y objetivos de aprendizaje.",
+    feedbackWrong: "La falta de integridad ética (derechos de autor) o el enfoque puramente técnico no definen la competencia de adaptación pedagógica.",
+    sugerencia: "Estándares de Desempeño Profesional - Gestión del Aprendizaje."
+  },
+  {
+    num: 49,
+    text: "El docente propone que los niños utilicen un mapa digital compartido para señalar los puntos donde se encuentran las áreas de reciclaje de su vecindario. Según DigCompEdu, ¿qué estrategia está aplicando?",
+    options: ["A) Implementar aprendizaje colaborativo digital.", "B) Monitorear tiempo conexión alumnos.", "C) Instalar sistemas operativos institucionales.", "D) Borrar archivos compartidos docentes."],
+    correct: 0,
+    feedbackCorrect: "El Área 3 (Enseñanza y Aprendizaje) promueve el uso de tecnologías para que los estudiantes co-creen información y aprendan unos de otros en entornos virtuales.",
+    feedbackWrong: "Son tareas de control, soporte técnico o gestión de archivos que no reflejan la intención pedagógica de colaboración digital.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 3: Enseñanza y Aprendizaje."
+  },
+  {
+    num: 50,
+    text: "Al finalizar un proyecto sobre la salud, los niños de primer grado elaboran tarjetas informativas sobre el lavado de manos para repartir en sus hogares. ¿Qué enfoque de alfabetización aplica?",
+    options: ["A) Producir textos sentido funcional.", "B) Copiar listas vocabulario técnico.", "C) Memorizar abecedario completo hoy.", "D) Evaluar caligrafía letras aisladas."],
+    correct: 0,
+    feedbackCorrect: "El enfoque comunicativo de la Guía Docente prioriza que la producción escrita tenga un propósito comunicativo real y relevante para la vida diaria del niño.",
+    feedbackWrong: "La copia, la memorización del alfabeto o la caligrafía aislada son enfoques tradicionales que no desarrollan la función social de la lengua.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 51,
+    text: "Un docente emplea un tablero digital para que sus estudiantes registren su progreso diario y visualicen sus logros individuales. Según el marco DigCompEdu, ¿qué dimensión evaluativa está fortaleciendo?",
+    options: ["A) Monitorear procesos administrativos escolares.", "B) Fomentar autorregulación del aprendizaje.", "C) Clasificar niveles inteligencia grupal.", "D) Automatizar registros asistencia diaria."],
+    correct: 1,
+    feedbackCorrect: "El Área 4 (Evaluación) destaca el uso de tecnologías para que los estudiantes desarrollen capacidades metacognitivas y gestionen su propio progreso de forma autónoma.",
+    feedbackWrong: "No representan una competencia de análisis pedagógico; se refieren a gestiones burocráticas, de control o visiones técnicas ajenas al empoderamiento del alumno.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 4: Evaluación."
+  },
+  {
+    num: 52,
+    text: "En una sesión de rincones, un niño de 5 años completa una secuencia de figuras geométricas alternando color y tamaño sin ayuda del docente. ¿Qué capacidad cognitiva compleja está evidenciando?",
+    options: ["A) Resolver operaciones cálculo aritmético.", "B) Identificar patrones lógicos abstractos.", "C) Memorizar series numéricas básicas.", "D) Dibujar formas geométricas simples."],
+    correct: 1,
+    feedbackCorrect: "El currículo de Preparatoria establece que el niño debe avanzar hacia la identificación y creación de patrones basándose en múltiples atributos físicos.",
+    feedbackWrong: "El cálculo y la memoria no corresponden a esta etapa; el dibujo simple es una habilidad de expresión, no una operación lógica de seriación o patronaje.",
+    sugerencia: "Currículo Priorizado Preparatoria - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 53,
+    text: "Un docente identifica indicadores de riesgo físico en un estudiante y decide activar inmediatamente los protocolos de protección establecidos por el Ministerio. ¿Qué principio profesional aplica?",
+    options: ["A) Priorizar intereses institucionales personales.", "B) Delegar responsabilidades pedagógicas compañeros.", "C) Garantizar protección integral menor.", "D) Omitir denuncias situaciones riesgo."],
+    correct: 2,
+    feedbackCorrect: "El catálogo de perfiles profesionales exige que el docente actúe como garante de derechos, activando rutas de protección ante cualquier sospecha de vulneración.",
+    feedbackWrong: "Representan omisiones graves a la ética profesional y al marco legal vigente que protege el interés superior del niño en Ecuador.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Competencias Éticas y Legales."
+  },
+  {
+    num: 54,
+    text: "Durante la lectura de un cuento, la docente pide a los niños de primer grado que sugieran títulos alternativos basados en el conflicto central de la historia. ¿Qué proceso busca?",
+    options: ["A) Evaluar caligrafía trazo cursivo.", "B) Sistematizar copia textos narrativos.", "C) Decodificar fonemas grafemas aislados.", "D) Estimular comprensión lectora inferencial."],
+    correct: 3,
+    feedbackCorrect: "El enfoque comunicativo valora la capacidad del estudiante para otorgar sentido a los textos y realizar deducciones que van más allá de la información literal.",
+    feedbackWrong: "Se enfocan en aspectos mecánicos o gráficos que no corresponden a la construcción de significados y la interpretación textual que propone la guía.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 55,
+    text: "Tras aplicar un instrumento de evaluación, el docente se reúne individualmente con cada estudiante para analizar sus aciertos y orientar sus áreas de crecimiento. ¿Qué estándar cumple?",
+    options: ["A) Sancionar errores desempeño académico.", "B) Proveer retroalimentación formativa oportuna.", "C) Llenar registros administrativos obligatorios.", "D) Reportar faltas autoridades distritales."],
+    correct: 1,
+    feedbackCorrect: "Los estándares de desempeño profesional destacan que la evaluación debe ser una herramienta de diálogo que guíe al estudiante hacia la mejora continua.",
+    feedbackWrong: "El castigo, la burocratización o el enfoque meramente administrativo contradicen el carácter pedagógico y formativo que exigen los indicadores de calidad.",
+    sugerencia: "Estándares de Desempeño Profesional - Dimensión: Gestión del Aprendizaje."
+  },
+  {
+    num: 56,
+    text: "Un docente edita un video de una plataforma digital para eliminar fragmentos irrelevantes antes de proyectarlo en su clase sobre los ecosistemas locales. Según DigCompEdu, ¿qué competencia ejerce?",
+    options: ["A) Comprar software edición costoso.", "B) Adaptar contenidos digitales pedagógicos.", "C) Prohibir acceso internet laboratorios.", "D) Borrar archivos compartidos institucionales."],
+    correct: 1,
+    feedbackCorrect: "La competencia de \"Contenidos Digitales\" implica la capacidad de editar, adaptar y contextualizar recursos existentes para mejorar su efectividad didáctica.",
+    feedbackWrong: "No representan una competencia de creación pedagógica; se refieren a gestiones comerciales, medidas restrictivas o tareas técnicas de gestión de archivos.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 2: Contenidos Digitales."
+  },
+  {
+    num: 57,
+    text: "En Preparatoria, la docente organiza un juego donde los niños deben organizar sus pertenencias en el casillero correspondiente sin solicitar la intervención de un adulto. ¿Qué promueve?",
+    options: ["A) Imponer normas comportamiento rígidas.", "B) Desarrollar niveles autonomía personal.", "C) Esperar asistencia docente siempre.", "D) Memorizar nombres objetos personales."],
+    correct: 1,
+    feedbackCorrect: "El ámbito de Identidad y Autonomía busca que el niño adquiera gradualmente independencia y seguridad en la realización de sus tareas cotidianas.",
+    feedbackWrong: "Las prácticas de control extremo, la dependencia o la memorización abstracta inhiben el desarrollo de la iniciativa personal que demanda el currículo.",
+    sugerencia: "Currículo Priorizado Preparatoria - Ámbito: Identidad y Autonomía."
+  },
+  {
+    num: 58,
+    text: "Un docente utiliza una red social profesional para participar en un debate sobre el uso de metodologías activas en educación inicial. Según el marco DigCompEdu, ¿qué demuestra?",
+    options: ["A) Automatizar reportes administrativos mensuales.", "B) Participar aprendizaje profesional colaborativo.", "C) Gestionar infraestructura red institucional.", "D) Supervisar procesos evaluación estandarizados."],
+    correct: 1,
+    feedbackCorrect: "El Área 1 destaca el uso de canales digitales para la interacción profesional, permitiendo al docente actualizarse y co-crear conocimiento con sus pares.",
+    feedbackWrong: "Son tareas burocráticas o técnicas que no reflejan la competencia de desarrollo profesional y formación continua a través de redes digitales.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 1: Compromiso Profesional."
+  },
+  {
+    num: 59,
+    text: "Durante una exploración en el huerto, un niño pregunta por qué las lombrices viven bajo tierra; el docente propone investigar juntos mediante la observación directa. ¿Qué habilidad fortalece?",
+    options: ["A) Memorizar términos científicos complejos.", "B) Priorizar recolección muestras biológicas.", "C) Evaluar conocimientos teóricos botánica.", "D) Fomentar indagación científica guiada."],
+    correct: 3,
+    feedbackCorrect: "El descubrimiento del medio natural busca despertar la curiosidad y el uso de los sentidos para que el niño explore y comprenda los fenómenos biológicos.",
+    feedbackWrong: "El academicismo basado en la memoria o la teoría no corresponde al nivel de desarrollo de Preparatoria, que prioriza la exploración activa y vivencial.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural."
+  },
+  {
+    num: 60,
+    text: "El docente de Educación Física adapta sus juegos tradicionales integrando elementos de la cultura local de los estudiantes migrantes que se incorporaron al grado. ¿Qué práctica realiza?",
+    options: ["A) Estandarizar procesos instrucción curriculares.", "B) Contextualizar diseño curricular áulico.", "C) Priorizar cumplimiento cronogramas administrativos.", "D) Omitir objetivos aprendizaje oficiales."],
+    correct: 1,
+    feedbackCorrect: "Un desempeño profesional de calidad implica adaptar el currículo nacional a la diversidad cultural y social del grupo para garantizar la inclusión y pertinencia.",
+    feedbackWrong: "La estandarización, el enfoque burocrático o la omisión de objetivos contradicen el principio de flexibilidad y respeto a la diversidad de los estándares.",
+    sugerencia: "Estándares de Desempeño Profesional - Gestión del Aprendizaje."
+  },
+  {
+    num: 61,
+    text: "Un docente integra una herramienta de dictado por voz para que un estudiante con dificultades motrices pueda completar su redacción digital. Según el Marco Europeo para la Competencia Digital de los Educadores (DigCompEdu), ¿qué área competencial aplica?",
+    options: ["A) Estandarizar procesos instrucción grupales.", "B) Asegurar accesibilidad inclusión tecnológica.", "C) Gestionar infraestructura red institucional.", "D) Monitorear tiempo conexión estudiantes."],
+    correct: 1,
+    feedbackCorrect: "El área de empoderamiento del alumnado exige que el docente identifique y elimine barreras digitales, garantizando que la tecnología sea un medio de inclusión para todos.",
+    feedbackWrong: "La estandarización ignora la diversidad; la gestión de red o el monitoreo técnico no abordan la personalización pedagógica de acceso requerida.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 5: Empoderamiento de los alumnos."
+  },
+  {
+    num: 62,
+    text: "Durante una actividad de rincones, una docente de Preparatoria permite que cada niño elija libremente los materiales y el espacio donde desea realizar su representación artística. ¿Qué proceso busca fortalecer primordialmente?",
+    options: ["A) Estandarizar procesos elección grupales.", "B) Desarrollar niveles autonomía personal.", "C) Priorizar imitación conductas profesor.", "D) Memorizar nombres objetos aula."],
+    correct: 1,
+    feedbackCorrect: "El ámbito de Identidad y Autonomía busca que el niño tome decisiones independientes sobre sus acciones, desarrollando seguridad y autoconfianza en su entorno.",
+    feedbackWrong: "El control rígido, la imitación o el enfoque memorístico inhiben el desarrollo de la iniciativa personal que demanda el currículo nacional.",
+    sugerencia: "Currículo Priorizado Preparatoria - Ámbito: Identidad y Autonomía."
+  },
+  {
+    num: 63,
+    text: "Antes de iniciar un proyecto de indagación, el docente comparte y explica detalladamente la rúbrica de evaluación con sus estudiantes de primer grado. Según los Estándares de Desempeño Profesional, ¿qué práctica está demostrando?",
+    options: ["A) Fiscalizar resultados aprendizaje individuales.", "B) Transparentar procesos evaluación formativa.", "C) Llenar registros administrativos obligatorios.", "D) Reportar faltas autoridades distritales."],
+    correct: 1,
+    feedbackCorrect: "Un desempeño de alta calidad implica que los estudiantes conozcan los criterios de evaluación de antemano, promoviendo la autorregulación y la honestidad académica.",
+    feedbackWrong: "La fiscalización punitiva o el enfoque meramente administrativo contradicen el carácter pedagógico y orientador de la evaluación de calidad.",
+    sugerencia: "Estándares de Desempeño Profesional - Dimensión: Gestión del Aprendizaje."
+  },
+  {
+    num: 64,
+    text: "Un docente de primer grado utiliza canciones infantiles para que los niños identifiquen palabras que terminan con el mismo sonido, sin recurrir a textos escritos. De acuerdo con la Guía para Docentes, ¿qué componente de la alfabetización inicial está priorizando?",
+    options: ["A) Evaluar caligrafía trazo cursivo.", "B) Sistematizar copia textos narrativos.", "C) Fortalecer conciencia fonológica oral.", "D) Decodificar fonemas grafemas aislados."],
+    correct: 2,
+    feedbackCorrect: "El desarrollo de habilidades metalingüísticas orales, como la rima y la segmentación, es el pilar fundamental para la comprensión del sistema de escritura.",
+    feedbackWrong: "La caligrafía, la copia o la decodificación mecánica son enfoques tradicionales que no desarrollan la percepción auditiva necesaria en esta etapa.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 65,
+    text: "Un docente es consultado por un miembro de la comunidad sobre la situación económica de una familia del grado. De acuerdo con el Catálogo de Perfiles Profesionales, ¿cuál es la conducta ética requerida?",
+    options: ["A) Compartir datos familiares públicamente.", "B) Mantener confidencialidad ética profesional.", "C) Delegar responsabilidad compañeros grado.", "D) Priorizar intereses institucionales particulares."],
+    correct: 1,
+    feedbackCorrect: "El perfil profesional exige actuar con integridad, protegiendo la privacidad y la información sensible de los estudiantes bajo el principio de sigilo profesional.",
+    feedbackWrong: "La divulgación de datos sensibles o la delegación de esta responsabilidad ética constituyen faltas graves a la normativa y responsabilidad del docente.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Competencias Éticas y Legales."
+  },
+  {
+    num: 66,
+    text: "Un docente edita un video de una plataforma digital para eliminar segmentos con ruidos distractores antes de presentarlo a su clase. Según el marco DigCompEdu, ¿qué competencia digital está demostrando?",
+    options: ["A) Priorizar adquisición software comercial.", "B) Adaptar contenidos digitales pedagógicos.", "C) Gestionar infraestructura red institucional.", "D) Monitorear tiempo navegación estudiantil."],
+    correct: 1,
+    feedbackCorrect: "La competencia de \"Contenidos Digitales\" implica la capacidad de editar y contextualizar recursos existentes para mejorar su efectividad y pertinencia didáctica.",
+    feedbackWrong: "No representan una competencia de creación pedagógica; se refieren a gestiones comerciales, técnicas o de supervisión ajenas al diseño didáctico.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 2: Contenidos Digitales."
+  },
+  {
+    num: 67,
+    text: "En una actividad de relaciones lógico-matemáticas, un niño de Preparatoria logra completar una secuencia compleja de figuras alternando tres colores distintos. ¿Qué capacidad cognitiva está consolidando?",
+    options: ["A) Resolver operaciones cálculo aritmético.", "B) Identificar patrones lógicos abstractos.", "C) Memorizar series numéricas básicas.", "D) Dibujar formas geométricas simples."],
+    correct: 1,
+    feedbackCorrect: "El currículo de Preparatoria establece que el niño debe avanzar hacia la identificación y creación de patrones basándose en múltiples atributos físicos.",
+    feedbackWrong: "El cálculo y la memoria no corresponden a esta etapa; el dibujo simple es una habilidad expresiva, no una operación lógica de seriación.",
+    sugerencia: "Currículo Priorizado Preparatoria - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 68,
+    text: "Al planificar la unidad de Ciencias Sociales, un docente integra las festividades locales de la comunidad para explicar los conceptos de identidad y pertenencia. Según los Estándares de Calidad, ¿qué práctica está ejerciendo?",
+    options: ["A) Estandarizar procesos instrucción curriculares.", "B) Contextualizar diseño curricular áulico.", "C) Priorizar cumplimiento cronogramas administrativos.", "D) Omitir objetivos aprendizaje oficiales."],
+    correct: 1,
+    feedbackCorrect: "Un desempeño de calidad requiere que el docente adapte el currículo nacional a la realidad cultural y social de sus estudiantes para garantizar su pertinencia.",
+    feedbackWrong: "La estandarización, el enfoque burocrático o la omisión de objetivos contradicen el principio de flexibilidad y contextualización de los estándares.",
+    sugerencia: "Estándares de Desempeño Profesional - Gestión del Aprendizaje."
+  },
+  {
+    num: 69,
+    text: "Un docente utiliza una aplicación de gestión para enviar insignias digitales de reconocimiento a los estudiantes que demuestran actitudes de colaboración grupal. Según el marco DigCompEdu, ¿qué acción está fortaleciendo?",
+    options: ["A) Automatizar reportes administrativos mensuales.", "B) Reforzar conductas sociales positivas.", "C) Gestionar infraestructura red institucional.", "D) Supervisar procesos evaluación estandarizados."],
+    correct: 1,
+    feedbackCorrect: "El uso de tecnologías para la gestión del clima de aula y la comunicación de incentivos forma parte del compromiso profesional y la gestión organizacional.",
+    feedbackWrong: "No se trata de un trámite burocrático o técnico, sino de un soporte digital para la labor pedagógica y el desarrollo socioemocional.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 1: Compromiso profesional."
+  },
+  {
+    num: 70,
+    text: "Durante una salida al parque cercano, el docente guía a los estudiantes de Preparatoria para que diferencien entre las piedras y las hormigas que observan. ¿Qué capacidad busca consolidar?",
+    options: ["A) Memorizar clasificaciones biológicas teóricas.", "B) Discriminar elementos entorno natural.", "C) Priorizar recolección muestras experimentales.", "D) Evaluar conocimientos botánica sistemática."],
+    correct: 1,
+    feedbackCorrect: "El descubrimiento del medio busca que el niño utilice sus sentidos para diferenciar entre materia inerte y seres vivos de su entorno inmediato.",
+    feedbackWrong: "El academicismo basado en memoria o teoría no corresponde al nivel de desarrollo de Preparatoria, que prioriza la exploración vivencial.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural."
+  },
+  {
+    num: 71,
+    text: "Un docente evalúa una aplicación gratuita que solicita acceso a la ubicación GPS y a la lista de contactos para funcionar. Según el Marco Europeo para la Competencia Digital de los Educadores (DigCompEdu), ¿qué criterio técnico debe priorizar?",
+    options: ["A) Priorizar gratuidad recurso digital.", "B) Garantizar seguridad datos personales.", "C) Seleccionar por diseño visual.", "D) Omitir cláusulas privacidad técnica."],
+    correct: 1,
+    feedbackCorrect: "La competencia de selección de recursos digitales (Área 2) exige que el docente valore la protección de datos y la privacidad de los estudiantes por encima de criterios estéticos o económicos.",
+    feedbackWrong: "El ahorro, la estética o la negligencia ante la seguridad vulneran la ética profesional y la integridad digital de los menores.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 2: Contenidos Digitales."
+  },
+  {
+    num: 72,
+    text: "Durante un proyecto sobre el reciclaje, un docente de Preparatoria solicita a los niños separar botellas considerando simultáneamente que sean \"grandes, plásticas y transparentes\". ¿Qué destreza del pensamiento lógico está consolidando?",
+    options: ["A) Resolver problemas cálculo aritmético.", "B) Clasificar objetos atributos múltiples.", "C) Memorizar series numéricas básicas.", "D) Dibujar formas geométricas simples."],
+    correct: 1,
+    feedbackCorrect: "El currículo de Preparatoria establece que el niño debe avanzar hacia la clasificación de elementos basándose en tres o más atributos de forma simultánea.",
+    feedbackWrong: "El cálculo y la memoria no corresponden a esta etapa; el dibujo simple es una habilidad de expresión, no una operación lógica de clasificación avanzada.",
+    sugerencia: "Currículo Priorizado Preparatoria - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 73,
+    text: "Tras observar que un grupo de estudiantes tiene dificultades persistentes con la lateralidad, el docente organiza juegos de orientación espacial específicos antes de la siguiente sesión. ¿Qué estándar de desempeño cumple?",
+    options: ["A) Sancionar errores desempeño académico.", "B) Proveer retroalimentación formativa oportuna.", "C) Llenar registros administrativos obligatorios.", "D) Reportar faltas autoridades distritales."],
+    correct: 1,
+    feedbackCorrect: "Un desempeño de alta calidad implica utilizar las observaciones del aprendizaje para ajustar la enseñanza y brindar apoyos específicos que resuelvan nudos críticos.",
+    feedbackWrong: "El enfoque punitivo, burocrático o de supervisión externa contradice el carácter pedagógico y orientador de la gestión del aprendizaje de calidad.",
+    sugerencia: "Estándares de Desempeño Profesional - Dimensión: Gestión del Aprendizaje."
+  },
+  {
+    num: 74,
+    text: "La docente de primer grado narra un cuento y realiza pausas estratégicas para que los niños sugieran cómo creen que se siente el protagonista en ese momento. ¿Qué proceso busca fortalecer primordialmente?",
+    options: ["A) Evaluar caligrafía trazo cursivo.", "B) Sistematizar copia textos narrativos.", "C) Estimular comprensión lectora inferencial.", "D) Decodificar fonemas grafemas aislados."],
+    correct: 2,
+    feedbackCorrect: "El enfoque comunicativo valora la capacidad del estudiante para realizar deducciones sobre estados emocionales y motivaciones que van más allá de lo literal.",
+    feedbackWrong: "Se enfocan en aspectos mecánicos o gráficos que no corresponden a la construcción de significados y la interpretación subjetiva que propone la alfabetización funcional.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 75,
+    text: "Un docente utiliza un software educativo que permite a los estudiantes elegir entre leer el contenido en pantalla o escucharlo mediante un audiolibro integrado. ¿Qué subcompetencia del área de empoderamiento aplica?",
+    options: ["A) Monitorear tiempo conexión alumnos.", "B) Atender diversidad ritmos aprendizaje.", "C) Priorizar resultados técnicos grupales.", "D) Estandarizar procesos evaluación digitales."],
+    correct: 1,
+    feedbackCorrect: "El empoderamiento digital implica ofrecer múltiples medios de representación para responder a las diferentes necesidades y canales de aprendizaje del grupo.",
+    feedbackWrong: "El monitoreo técnico o la estandarización no abordan la personalización pedagógica que busca este componente del marco europeo.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 5: Diferenciación y personalización."
+  },
+  {
+    num: 76,
+    text: "Un docente recibe información confidencial sobre la situación de salud de un estudiante y se asegura de que solo el equipo de consejería estudiantil maneje los datos. ¿Qué principio demuestra?",
+    options: ["A) Compartir datos familiares públicamente.", "B) Mantener confidencialidad ética profesional.", "C) Delegar responsabilidad compañeros grado.", "D) Priorizar intereses institucionales particulares."],
+    correct: 1,
+    feedbackCorrect: "El perfil profesional exige actuar con integridad, protegiendo la privacidad y la información sensible de los estudiantes bajo el principio de sigilo profesional.",
+    feedbackWrong: "La divulgación de datos sensibles o la delegación de esta responsabilidad ética constituyen faltas graves a la normativa y responsabilidad del docente.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Competencias Éticas y Legales."
+  },
+  {
+    num: 77,
+    text: "En una salida al patio de la escuela, los niños de Preparatoria deben clasificar diversos objetos en \"creados por humanos\" y \"elementos de la naturaleza\". ¿Qué capacidad busca consolidar?",
+    options: ["A) Memorizar términos científicos complejos.", "B) Discriminar elementos entorno natural.", "C) Priorizar recolección muestras experimentales.", "D) Evaluar conocimientos botánica sistemática."],
+    correct: 1,
+    feedbackCorrect: "El descubrimiento del medio busca que el niño utilice sus sentidos para diferenciar entre componentes antrópicos y elementos naturales de su entorno inmediato.",
+    feedbackWrong: "El academicismo basado en memoria o teoría no corresponde al nivel de desarrollo de Preparatoria, que prioriza la exploración vivencial y sensorial.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural."
+  },
+  {
+    num: 78,
+    text: "Al planificar la semana sobre \"Mi Familia\", el docente integra fotos, audios y relatos reales aportados voluntariamente por los hogares de sus estudiantes. ¿Qué práctica de gestión ejerce?",
+    options: ["A) Estandarizar procesos instrucción curriculares.", "B) Contextualizar diseño curricular áulico.", "C) Priorizar cumplimiento cronogramas administrativos.", "D) Omitir objetivos aprendizaje oficiales."],
+    correct: 1,
+    feedbackCorrect: "Un desempeño de alta calidad requiere que el docente adapte el currículo nacional a la realidad afectiva y social de sus estudiantes para garantizar su pertinencia.",
+    feedbackWrong: "La estandarización, el enfoque burocrático o la omisión de objetivos contradicen el principio de flexibilidad y respeto a la identidad de los estándares.",
+    sugerencia: "Estándares de Desempeño Profesional - Gestión del Aprendizaje."
+  },
+  {
+    num: 79,
+    text: "Un docente edita una guía de actividades digital para incluir pictogramas y apoyos visuales que faciliten la comprensión de un estudiante con necesidades específicas. ¿Qué competencia demuestra?",
+    options: ["A) Priorizar adquisición software comercial.", "B) Adaptar contenidos digitales pedagógicos.", "C) Gestionar infraestructura red institucional.", "D) Monitorear tiempo navegación estudiantil."],
+    correct: 1,
+    feedbackCorrect: "La competencia de \"Contenidos Digitales\" implica la capacidad de editar y adaptar recursos existentes para que sean accesibles y respondan a la diversidad del aula.",
+    feedbackWrong: "No representan una competencia de creación pedagógica; se refieren a gestiones comerciales, técnicas o de supervisión ajenas al diseño didáctico inclusivo.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 2: Contenidos Digitales."
+  },
+  {
+    num: 80,
+    text: "Al finalizar la jornada, el docente permite que cada niño elija qué tarea de orden del aula desea realizar voluntariamente según sus preferencias. ¿Qué proceso busca promover?",
+    options: ["A) Imponer normas comportamiento rígidamente.", "B) Desarrollar niveles autonomía personal.", "C) Esperar asistencia docente siempre.", "D) Memorizar nombres objetos personales."],
+    correct: 1,
+    feedbackCorrect: "El ámbito de Identidad y Autonomía busca que el niño tome decisiones independientes sobre sus acciones, desarrollando seguridad y responsabilidad en su entorno.",
+    feedbackWrong: "El control rígido, la dependencia o el enfoque memorístico inhiben el desarrollo de la iniciativa personal que demanda el currículo nacional.",
+    sugerencia: "Currículo Priorizado Preparatoria - Ámbito: Identidad y Autonomía."
+  },
+  {
+    num: 81,
+    text: "Un docente utiliza una plataforma de gamificación para que los estudiantes de primer grado resuelvan retos de lógica, permitiendo que cada uno elija el nivel de dificultad inicial. Según el marco DigCompEdu, ¿qué acción pedagógica digital prioriza?",
+    options: ["A) Estandarizar procesos instrucción grupales.", "B) Implementar itinerarios aprendizaje personalizados.", "C) Priorizar contenidos técnicos avanzados.", "D) Sustituir interacción docente tradicional."],
+    correct: 1,
+    feedbackCorrect: "El área de empoderamiento del alumnado (Área 5) busca que la tecnología facilite la diferenciación, permitiendo que cada estudiante avance según sus capacidades y ritmo.",
+    feedbackWrong: "La estandarización ignora la diversidad; la priorización técnica no asegura el aprendizaje; y la tecnología es un mediador, nunca un sustituto del rol docente.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 5: Diferenciación y personalización."
+  },
+  {
+    num: 82,
+    text: "Durante la asamblea matutina en Preparatoria, el docente permite que un estudiante lidere la elección de la canción del día y organice el orden de participación. ¿Qué proceso busca consolidar primordialmente?",
+    options: ["A) Imponer normas comportamiento rígidas.", "B) Potenciar niveles autonomía personal.", "C) Priorizar imitación conductas profesor.", "D) Memorizar nombres objetos aula."],
+    correct: 1,
+    feedbackCorrect: "El ámbito de Identidad y Autonomía promueve que el niño tome decisiones y asuma responsabilidades progresivas, fortaleciendo su liderazgo e independencia.",
+    feedbackWrong: "El control autoritario, la imitación o el enfoque puramente memorístico contradicen el desarrollo de la iniciativa personal que demanda el currículo nacional.",
+    sugerencia: "Currículo Priorizado Preparatoria - Ámbito: Identidad y Autonomía."
+  },
+  {
+    num: 83,
+    text: "Al detectar que un estudiante no ha logrado los objetivos de aprendizaje tras una unidad didáctica, el docente diseña un plan de acompañamiento pedagógico diferenciado. De acuerdo con los Estándares de Desempeño, ¿qué práctica ejerce?",
+    options: ["A) Sancionar errores desempeño académico.", "B) Atender diversidad ritmos aprendizaje.", "C) Llenar registros administrativos obligatorios.", "D) Reportar faltas autoridades distritales."],
+    correct: 1,
+    feedbackCorrect: "Un estándar de calidad en la gestión del aprendizaje es la capacidad del docente para responder a las necesidades individuales mediante estrategias de refuerzo oportunas.",
+    feedbackWrong: "El castigo, la burocratización o el reporte externo no resuelven la brecha pedagógica ni cumplen con el carácter inclusivo de la enseñanza de calidad.",
+    sugerencia: "Estándares de Desempeño Profesional - Dimensión: Gestión del Aprendizaje."
+  },
+  {
+    num: 84,
+    text: "Una docente de primer grado organiza una \"cacería de rimas\" en el patio, donde los niños deben emparejar objetos cuyos nombres terminen con el mismo sonido. Según la Guía para Docentes, ¿qué componente prioriza?",
+    options: ["A) Evaluar caligrafía trazo cursivo.", "B) Sistematizar copia textos narrativos.", "C) Desarrollar conciencia fonológica oral.", "D) Decodificar fonemas grafemas aislados."],
+    correct: 2,
+    feedbackCorrect: "La alfabetización inicial efectiva requiere el desarrollo de habilidades metalingüísticas auditivas (como identificar rimas) antes del dominio de la escritura convencional.",
+    feedbackWrong: "La caligrafía, la copia o la decodificación mecánica son enfoques tradicionales que no abordan la percepción fonológica necesaria en esta etapa inicial.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 85,
+    text: "Un docente recibe un obsequio económico de un representante a cambio de mejorar la calificación de un estudiante. De acuerdo con el Catálogo de Perfiles Profesionales, ¿qué conducta ética debe seguir?",
+    options: ["A) Aceptar beneficios personales directos.", "B) Rechazar beneficios personales indebidos.", "C) Delegar decisión autoridades institucionales.", "D) Priorizar intereses particulares externos."],
+    correct: 1,
+    feedbackCorrect: "El perfil profesional docente exige actuar con integridad y transparencia, rechazando cualquier acción que comprometa la imparcialidad y la ética del magisterio.",
+    feedbackWrong: "El soborno o la delegación de la responsabilidad ética constituyen faltas graves a la normativa y al compromiso social del docente ecuatoriano.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Competencias Éticas y Legales."
+  },
+  {
+    num: 86,
+    text: "Un docente utiliza una herramienta de encuestas en tiempo real para verificar si los estudiantes comprendieron la instrucción antes de iniciar el trabajo grupal. Según DigCompEdu, ¿qué competencia digital ejerce?",
+    options: ["A) Priorizar resultados técnicos grupales.", "B) Implementar evaluación formativa digital.", "C) Automatizar registros administrativos mensuales.", "D) Monitorear tiempo conexión alumnos."],
+    correct: 1,
+    feedbackCorrect: "El Área 4 (Evaluación) destaca el uso de tecnologías para obtener evidencias inmediatas del aprendizaje y ajustar la enseñanza en el momento oportuno.",
+    feedbackWrong: "No se trata de un trámite burocrático o de un monitoreo técnico de red, sino de una estrategia didáctica para mejorar el proceso de instrucción.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 4: Evaluación."
+  },
+  {
+    num: 87,
+    text: "En el rincón de construcción, un niño de Preparatoria organiza los cilindros del más grueso al más delgado por iniciativa propia. ¿Qué operación lógica de nivel superior está evidenciando?",
+    options: ["A) Resolver problemas cálculo aritmético.", "B) Realizar seriación objetos criterios.", "C) Memorizar series numéricas básicas.", "D) Dibujar formas geométricas simples."],
+    correct: 1,
+    feedbackCorrect: "En Preparatoria, la seriación es una capacidad cognitiva que permite al niño establecer un orden creciente o decreciente basado en un atributo físico observable.",
+    feedbackWrong: "El cálculo y la memoria no corresponden a esta etapa de desarrollo; el dibujo simple es una habilidad expresiva, no una operación lógica de orden.",
+    sugerencia: "Currículo Priorizado Preparatoria - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 88,
+    text: "Ante un conflicto recurrente en el aula, el docente facilita un proceso de mediación donde los estudiantes proponen sus propias normas de convivencia. ¿Qué indicador de calidad educativa cumple?",
+    options: ["A) Mantener orden mediante autoridad.", "B) Promover clima aula positivo.", "C) Sancionar conductas disruptivas severamente.", "D) Delegar resolución autoridades directivas."],
+    correct: 1,
+    feedbackCorrect: "Los estándares de desempeño valoran la capacidad del docente para gestionar conflictos mediante el diálogo, fortaleciendo habilidades sociales y la convivencia armónica.",
+    feedbackWrong: "El autoritarismo, la sanción punitiva o la delegación externa son prácticas que no contribuyen a un clima de aprendizaje de calidad ni a la formación ciudadana.",
+    sugerencia: "Estándares de Calidad Educativa - Gestión del Aprendizaje (Clima de Aula)."
+  },
+  {
+    num: 89,
+    text: "Un docente diseña una unidad didáctica utilizando recursos educativos abiertos (REA) y se asegura de citar correctamente a los autores originales. Según el marco DigCompEdu, ¿qué área competencial demuestra?",
+    options: ["A) Priorizar adquisición software comercial.", "B) Gestionar contenidos digitales éticamente.", "C) Instalar sistemas operativos institucionales.", "D) Borrar archivos compartidos docentes."],
+    correct: 1,
+    feedbackCorrect: "La gestión de contenidos (Área 2) incluye la capacidad de seleccionar y utilizar recursos digitales respetando la propiedad intelectual y los derechos de autor.",
+    feedbackWrong: "No se trata de una transacción económica ni de una tarea de soporte técnico, sino del ejercicio de una ética profesional en entornos virtuales.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 2: Contenidos Digitales."
+  },
+  {
+    num: 90,
+    text: "Durante la observación de una planta en el huerto escolar, el docente guía a los estudiantes para que describan las partes que pueden ver y tocar. ¿Qué capacidad técnica busca fortalecer en este nivel?",
+    options: ["A) Memorizar términos científicos complejos.", "B) Identificar elementos medio natural.", "C) Priorizar recolección muestras experimentales.", "D) Evaluar conocimientos botánica sistemática."],
+    correct: 1,
+    feedbackCorrect: "El descubrimiento del medio natural busca que el niño utilice sus sentidos para explorar y reconocer los componentes biológicos de su entorno inmediato.",
+    feedbackWrong: "El academicismo basado en la memoria teórica no corresponde al nivel de desarrollo de Preparatoria, que prioriza la exploración vivencial y sensorial.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural."
+  },
+  {
+    num: 91,
+    text: "Un docente selecciona un videojuego educativo para su clase, pero antes de presentarlo, comprueba que el contenido no refuerce estereotipos de género o discriminación. Según el marco DigCompEdu, ¿qué criterio técnico prioriza?",
+    options: ["A) Priorizar costos licencias comerciales.", "B) Evaluar pertinencia didáctica recursos.", "C) Omitir derechos autor originales.", "D) Seleccionar por popularidad estética."],
+    correct: 1,
+    feedbackCorrect: "La selección de recursos digitales (Área 2) exige que el docente valore la idoneidad pedagógica y la promoción de valores inclusivos por encima de criterios comerciales.",
+    feedbackWrong: "El costo, la estética o la falta de ética en los derechos de autor no aseguran la calidad ni la seguridad educativa del recurso.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 2: Contenidos Digitales."
+  },
+  {
+    num: 92,
+    text: "Durante la rutina de alimentación en Preparatoria, un niño de cinco años utiliza los cubiertos y limpia su espacio al terminar sin intervención del docente. ¿Qué objetivo curricular está consolidando?",
+    options: ["A) Fomentar hábitos higiene personal.", "B) Esperar siempre ayuda docente.", "C) Imponer ritmos trabajo rígidos.", "D) Memorizar nombres artículos aseo."],
+    correct: 0,
+    feedbackCorrect: "El ámbito de Identidad y Autonomía busca fortalecer la seguridad y la capacidad del niño para valerse por sí mismo en situaciones cotidianas.",
+    feedbackWrong: "Las conductas de dependencia, el control externo o el enfoque puramente memorístico inhiben el desarrollo de la iniciativa personal que demanda el currículo.",
+    sugerencia: "Currículo Priorizado Preparatoria - Ámbito: Identidad y Autonomía."
+  },
+  {
+    num: 93,
+    text: "Un docente identifica que un estudiante con Trastorno del Espectro Autista (TEA) requiere apoyos visuales para comprender la agenda del día. De acuerdo con los Estándares de Desempeño, ¿cuál es el proceder esperado?",
+    options: ["A) Estandarizar procesos instrucción grupales.", "B) Implementar adaptaciones curriculares individuales.", "C) Priorizar cumplimiento cronograma oficial.", "D) Delegar intervención especialistas externos."],
+    correct: 1,
+    feedbackCorrect: "Un desempeño de alta calidad implica ajustar la metodología y los recursos para garantizar la inclusión y el aprendizaje de todos los estudiantes.",
+    feedbackWrong: "La estandarización, el cumplimiento administrativo o la delegación total de la atención NEE contradicen el principio de equidad y responsabilidad docente.",
+    sugerencia: "Estándares de Desempeño Profesional - Gestión del Aprendizaje."
+  },
+  {
+    num: 94,
+    text: "La docente de primer grado organiza el aula con carteles que indican \"baño\", \"biblioteca\" y \"juegos\", asociando la palabra con la imagen. Según la Guía para Docentes, ¿qué proceso está estimulando?",
+    options: ["A) Copiar letras abecedario repetidamente.", "B) Reconocer función social lenguaje.", "C) Evaluar caligrafía trazo perfecto.", "D) Memorizar reglas ortográficas básicas."],
+    correct: 1,
+    feedbackCorrect: "El ambiente alfabetizador permite que el niño interactúe con el lenguaje escrito de forma funcional, comprendiendo que la escritura transmite significados reales.",
+    feedbackWrong: "El enfoque mecánico (copia, caligrafía, reglas abstractas) se aleja de la construcción de sentidos del enfoque comunicativo.",
+    sugerencia: "Guía para Docentes de Primer Grado - Lengua y Literatura."
+  },
+  {
+    num: 95,
+    text: "Un docente participa activamente en una red social profesional para debatir sobre la actualización de los Estándares de Calidad Educativa en Ecuador. Según el Catálogo de Perfiles, ¿qué competencia demuestra?",
+    options: ["A) Evitar procesos capacitación continua.", "B) Participar redes aprendizaje profesional.", "C) Priorizar intereses económicos personales.", "D) Omitir normativas legales vigentes."],
+    correct: 1,
+    feedbackCorrect: "El perfil profesional destaca la responsabilidad del docente de mantenerse en constante actualización y colaborar con pares para mejorar la calidad educativa.",
+    feedbackWrong: "Son conductas que demuestran desinterés por la mejora profesional o que vulneran la ética y el marco legal del magisterio.",
+    sugerencia: "Catálogo de Perfiles Profesionales - Desarrollo Profesional."
+  },
+  {
+    num: 96,
+    text: "Un docente guía a sus estudiantes en una búsqueda de información web, enseñándoles a verificar si la fuente es confiable antes de usarla. Según el marco DigCompEdu, ¿qué capacidad está fortaleciendo?",
+    options: ["A) Enseñar navegación segura internet.", "B) Prohibir uso dispositivos móviles.", "C) Ignorar riesgos privacidad virtual.", "D) Monitorear tiempo conexión alumnos."],
+    correct: 0,
+    feedbackCorrect: "El Área 6 del marco digital busca desarrollar en los estudiantes habilidades para gestionar información de forma crítica, ética y segura en el entorno digital.",
+    feedbackWrong: "La prohibición, la negligencia ante riesgos o el simple monitoreo técnico no desarrollan la competencia digital del alumno.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 6: Desarrollo de la competencia digital de los alumnos."
+  },
+  {
+    num: 97,
+    text: "En una actividad de psicomotricidad, el docente pide a los niños de Preparatoria que se coloquen \"detrás de la silla\" y luego \"lejos de la mesa\". ¿Qué destreza está consolidando?",
+    options: ["A) Resolver problemas cálculo matemático.", "B) Identificar nociones espaciales básicas.", "C) Memorizar nombres figuras geométricas.", "D) Dibujar laberintos colores primarios."],
+    correct: 1,
+    feedbackCorrect: "El currículo de Preparatoria busca que el niño desarrolle la ubicación en el espacio con relación a su cuerpo y a los objetos de su entorno.",
+    feedbackWrong: "El cálculo aritmético o la memoria de nombres geométricos son procesos distintos a la orientación espacial vivencial requerida en este nivel.",
+    sugerencia: "Currículo Priorizado Preparatoria - Relaciones Lógico-Matemáticas."
+  },
+  {
+    num: 98,
+    text: "Un docente organiza el aula eliminando barreras físicas y actitudinales para asegurar que un estudiante con discapacidad física participe plenamente en los juegos. ¿Qué estándar cumple?",
+    options: ["A) Sancionar conductas disruptivas severamente.", "B) Crear ambientes aprendizaje inclusivos.", "C) Ignorar diferencias individuales estudiantes.", "D) Imponer silencio absoluto clases."],
+    correct: 1,
+    feedbackCorrect: "Los estándares de desempeño profesional exigen que el docente genere un clima de aula respetuoso y equitativo que atienda a la diversidad del grupo.",
+    feedbackWrong: "El castigo, la indiferencia ante la diversidad o el control autoritario contradicen los indicadores de una gestión pedagógica inclusiva.",
+    sugerencia: "Estándares de Calidad Educativa - Gestión del Aprendizaje (Clima de Aula)."
+  },
+  {
+    num: 99,
+    text: "Al utilizar una plataforma de lectura, el docente ofrece apoyos visuales y pistas contextuales digitales a quienes presentan dificultades de comprensión. Según DigCompEdu, ¿qué acción realiza?",
+    options: ["A) Sustituir mediación docente directa.", "B) Andamiar procesos aprendizaje digitales.", "C) Priorizar resultados técnicos grupales.", "D) Automatizar reportes calificaciones mensuales."],
+    correct: 1,
+    feedbackCorrect: "El Área 3 destaca el uso de tecnologías para proporcionar andamiajes y apoyos diferenciados que faciliten el aprendizaje de los estudiantes.",
+    feedbackWrong: "La tecnología no reemplaza al docente; su uso debe enfocarse en el soporte pedagógico y no en trámites meramente administrativos.",
+    sugerencia: "Marco Europeo DigCompEdu - Área 3: Enseñanza y Aprendizaje."
+  },
+  {
+    num: 100,
+    text: "Durante una salida de campo, el docente enseña a los niños de Preparatoria a observar los insectos sin tocarlos para no lastimarlos. ¿Qué objetivo busca alcanzar?",
+    options: ["A) Arrancar flores jardines públicos.", "B) Promover respeto seres vivos.", "C) Extraer recursos fines comerciales.", "D) Ignorar problemas ambientales locales."],
+    correct: 1,
+    feedbackCorrect: "El descubrimiento del medio natural busca desarrollar actitudes de amor, respeto y cuidado por la naturaleza y todos los seres que la integran.",
+    feedbackWrong: "Son conductas destructivas, económicas o negligentes que no se alinean con los objetivos de conciencia ambiental del currículo nacional.",
+    sugerencia: "Currículo Priorizado 2025 - Descubrimiento y Comprensión del Medio Natural y Cultural."
+  }
+];
+
+let correct = 0;
+let wrong = 0;
+let answered = 0;
+const optLabels = ['A','B','C','D'];
+
+function buildQuiz() {
+  const area = document.getElementById('quiz-area');
+  area.innerHTML = '';
+  questions.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = 'q' + qi;
+
+    const num = document.createElement('div');
+    num.className = 'question-num';
+    num.textContent = 'Pregunta ' + q.num + ' de 100';
+    card.appendChild(num);
+
+    const txt = document.createElement('div');
+    txt.className = 'question-text';
+    txt.textContent = q.text;
+    card.appendChild(txt);
+
+    const opts = document.createElement('div');
+    opts.className = 'options';
+    q.options.forEach((opt, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.setAttribute('data-qi', qi);
+      btn.setAttribute('data-oi', oi);
+      btn.innerHTML = '<span class="opt-label">' + optLabels[oi] + ')</span> ' + opt.replace(/^[ABCD]\)\s*/,'');
+      btn.addEventListener('click', handleAnswer);
+      opts.appendChild(btn);
+    });
+    card.appendChild(opts);
+
+    const fb = document.createElement('div');
+    fb.className = 'feedback-box';
+    fb.id = 'fb' + qi;
+    card.appendChild(fb);
+
+    const sg = document.createElement('div');
+    sg.className = 'sugerencia';
+    sg.id = 'sg' + qi;
+    sg.innerHTML = '<strong>📚 Sugerencia de fuente:</strong> ' + q.sugerencia;
+    card.appendChild(sg);
+
+    area.appendChild(card);
+  });
+}
+
+function handleAnswer(e) {
+  const btn = e.currentTarget;
+  const qi = parseInt(btn.getAttribute('data-qi'));
+  const oi = parseInt(btn.getAttribute('data-oi'));
+  const q = questions[qi];
+
+  // Disable all buttons for this question
+  const card = document.getElementById('q' + qi);
+  const allBtns = card.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.disabled = true);
+
+  // Mark correct / wrong
+  allBtns[q.correct].classList.add('correct-ans');
+  if (oi !== q.correct) {
+    btn.classList.add('wrong-ans');
+  }
+
+  // Feedback
+  const fb = document.getElementById('fb' + qi);
+  fb.classList.add('show');
+  if (oi === q.correct) {
+    correct++;
+    fb.classList.add('fb-correct');
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>¡Correcto!</strong> ' + q.feedbackCorrect;
+    document.getElementById('sc-correct').textContent = correct;
+  } else {
+    wrong++;
+    fb.classList.add('fb-wrong');
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Incorrecto.</strong> ' + q.feedbackWrong + '<br><br><strong>La respuesta correcta es: ' + optLabels[q.correct] + ')</strong>';
+    document.getElementById('sc-wrong').textContent = wrong;
+  }
+
+  // Show suggestion
+  document.getElementById('sg' + qi).classList.add('show');
+
+  answered++;
+  document.getElementById('sc-total').textContent = answered;
+  updateProgress();
+
+  if (answered === 100) showFinal();
+}
+
+function updateProgress() {
+  const pct = (answered / 100) * 100;
+  document.getElementById('progress-bar-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = answered + ' de 100 respondidas';
+}
+
+function showFinal() {
+  document.getElementById('final-msg').style.display = 'block';
+  document.getElementById('final-score').textContent = correct + '/100';
+  let comment = '';
+  const pct = correct;
+  if (pct >= 90) comment = '🏆 ¡Excelente desempeño! Dominas los conocimientos para la enseñanza efectiva.';
+  else if (pct >= 70) comment = '👍 Buen resultado. Sigue profundizando en las fuentes sugeridas.';
+  else if (pct >= 50) comment = '📖 Resultado regular. Te recomendamos revisar los marcos y estándares citados.';
+  else comment = '💪 Hay oportunidades de mejora. Consulta las fuentes sugeridas en cada pregunta.';
+  document.getElementById('final-comment').textContent = comment;
+  document.getElementById('final-msg').scrollIntoView({behavior:'smooth'});
+}
+
+function resetQuiz() {
+  correct = 0; wrong = 0; answered = 0;
+  document.getElementById('sc-correct').textContent = 0;
+  document.getElementById('sc-wrong').textContent = 0;
+  document.getElementById('sc-total').textContent = 0;
+  document.getElementById('progress-bar-fill').style.width = '0%';
+  document.getElementById('progress-label').textContent = '0 de 100 respondidas';
+  document.getElementById('final-msg').style.display = 'none';
+  buildQuiz();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
